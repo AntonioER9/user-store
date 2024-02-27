@@ -1,6 +1,6 @@
-import { bcryptAdapter } from "../../config";
+import { JwtAdapter, bcryptAdapter } from "../../config";
 import { UserModel } from "../../data";
-import { CustomError, RegisterUserDto, UserEntity } from "../../domain";
+import { CustomError, LoginUserDto, RegisterUserDto, UserEntity } from "../../domain";
 
 export class AuthService {
     //Dependency Injection
@@ -31,6 +31,27 @@ export class AuthService {
 
         } catch (error) {
             throw CustomError.internalServer(`${error}`);
+        }
+
+    }
+
+    public async loginUser(loginUserDto: LoginUserDto) {
+
+        const user = await UserModel.findOne({email: loginUserDto.email});
+        if ( !user ) throw CustomError.badRequest('Email not exist');
+        
+        const isMatching = bcryptAdapter.compare(loginUserDto.password, user.password);
+        if (!isMatching) throw CustomError.badRequest('Password is not valid');
+
+        const {password, ...userEntity } = UserEntity.fromObject(user);
+        
+        const token = await JwtAdapter.generateToken({ id: user.id });
+
+        if (!token) throw CustomError.internalServer('Error while creating JWT');
+
+        return {
+            user: userEntity,
+            token: token,
         }
 
     }
