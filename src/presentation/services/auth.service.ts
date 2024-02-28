@@ -24,16 +24,18 @@ export class AuthService {
             user.password = bcryptAdapter.hash(registerUserDto.password);
 
             await user.save();
-            // JWT -> para mantener la autenticación del usuario
-
+            
             //Email de confirmación
             await this.sendEmailValidationLink(user.email);
             
             const { password, ...userEntity } = UserEntity.fromObject(user);
             
+            const token = await JwtAdapter.generateToken({ id: user.id });
+            if ( !token ) throw CustomError.internalServer('Error while creating JWT');
+
             return {
                 user: userEntity,
-                token: 'ABC'
+                token: token
             };
 
         } catch (error) {
@@ -53,7 +55,6 @@ export class AuthService {
         const {password, ...userEntity } = UserEntity.fromObject(user);
         
         const token = await JwtAdapter.generateToken({ id: user.id });
-
         if (!token) throw CustomError.internalServer('Error while creating JWT');
 
         return {
@@ -89,5 +90,22 @@ export class AuthService {
         
         return true;
     }
+
+    public validateEmail = async(token:string) => {
+
+        const payload = await JwtAdapter.validateToken(token);
+        if ( !payload ) throw CustomError.unauthorized('Invalid token');
+    
+        const { email } = payload as { email: string };
+        if ( !email ) throw CustomError.internalServer('Email not in token');
+    
+        const user = await UserModel.findOne({ email });
+        if ( !user ) throw CustomError.internalServer('Email not exists');
+    
+        user.emailValidated = true;
+        await user.save();
+    
+        return true;
+      }
 
 }
