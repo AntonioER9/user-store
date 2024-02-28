@@ -20,7 +20,9 @@ export class AuthService {
 
             await user.save();
             // JWT -> para mantener la autenticación del usuario
+
             //Email de confirmación
+            
             
             const { password, ...userEntity } = UserEntity.fromObject(user);
             
