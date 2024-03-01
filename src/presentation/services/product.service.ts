@@ -36,7 +36,7 @@ export class ProductService {
                     .limit(limit)
                     .populate('user')
                     .populate('category')
-                // .populate('user', 'name email')
+                // .populate('user', 'name email') //Con esto limitamos lo que queremos devolver (solo name y email)
             ]);
 
             return {
