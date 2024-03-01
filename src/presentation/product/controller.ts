@@ -25,7 +25,7 @@ export class ProductController {
 
         const [error, createProductDto] = CreateProductDto.create({
             ...req.body,
-            user: req.body.user.id,
+            user: req.body.user.id, //añadimos el user.
         });
         if (error) return res.status(400).json({ error });
 
@@ -42,11 +42,9 @@ export class ProductController {
         const [error, paginationDto] = PaginationDto.create(+page, +limit);
         if (error) return res.status(400).json({ error });
 
-
         this.productService.getProducts(paginationDto!)
             .then(products => res.json(products))
             .catch(error => this.handleError(error, res));
 
     };
-
 }

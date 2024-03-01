@@ -15,17 +15,13 @@ export class ProductService {
         try {
 
             const product = new ProductModel(createProductDto);
-
             await product.save();
-
             return product;
 
         } catch (error) {
             throw CustomError.internalServer(`${error}`);
         }
-
     }
-
 
     async getProducts(paginationDto: PaginationDto) {
 

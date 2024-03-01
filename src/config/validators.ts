@@ -1,5 +1,4 @@
-import mongoose, { mongo } from 'mongoose';
-
+import mongoose from 'mongoose';
 export class Validators {
 
     static isMongoID(id: string) {
