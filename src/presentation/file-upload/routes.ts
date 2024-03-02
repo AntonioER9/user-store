@@ -1,23 +1,28 @@
 import { Router } from 'express';
-import { CategoryController } from './controller';
-import { AuthMiddleware } from '../middlewares/auth.middleware';
-import { CategoryService } from '../services/category.service';
+import { FileUploadController } from './controller';
+import { FileUploadService } from '../services/file-upload.service';
+import { FileUploadMiddleware } from '../middlewares/file-upload.middleware';
+import { TypeMiddleware } from '../middlewares/type.middleware';
 
-export class CategoryRoutes {
-
+export class FileUploadRoutes {
 
   static get routes(): Router {
 
     const router = Router();
-    const categoryService = new CategoryService();
-    const controller = new CategoryController(categoryService);
+    const controller = new FileUploadController(
+      new FileUploadService()
+    );
 
+    router.use( FileUploadMiddleware.containFiles );
+    router.use( TypeMiddleware.validTypes(['users','products','categories']) );
+  
     // Definir las rutas
-    router.get('/', controller.getCategories);
-    router.post('/', [AuthMiddleware.validateJWT], controller.createCategory); //middleware añadido
+    // api/upload/single/<user|category|product>/
+    // api/upload/multiple/<user|category|product>/
+    router.post( '/single/:type', controller.uploadFile );
+    router.post( '/multiple/:type',controller.uploadMultileFiles );
 
     return router;
   }
 
 }
-

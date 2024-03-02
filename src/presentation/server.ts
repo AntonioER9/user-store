@@ -60,7 +60,3 @@ export class Server {
   }
 
 }
-function fileUpload(arg0: { limits: { fileSize: number; }; }): any {
-  throw new Error('Function not implemented.');
-}
-
